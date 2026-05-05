@@ -1,0 +1,93 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The matrix entry does the actual work. Postgres comes up via docker
+  # compose so the CI path matches what users run locally — same Makefile,
+  # same scripts, same entry points. The `gate` aggregator below is the
+  # status check the org's main-branch ruleset keys off of.
+  gate-matrix:
+    name: gate-matrix (${{ matrix.toolchain }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ["1.95.0"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: gate-${{ matrix.toolchain }}
+
+      - name: Boot postgres + load Pagila
+        run: |
+          make up
+          make pagila
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Verify headline counts
+        run: make verify
+
+      - name: Test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pagila
+        run: cargo test --workspace --all-targets --release
+
+      - name: Doc tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pagila
+        run: cargo test --workspace --doc
+
+      - name: Release build
+        run: cargo build --release --workspace
+
+      - name: Capstone smoke (customers --limit 3)
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/pagila
+        run: cargo run --release --bin postgres-reports -- --report customers --limit 3
+
+  # Aggregator. The org's main-branch ruleset requires a status check named
+  # exactly `gate`. The matrix above only emits `gate-matrix (toolchain)`
+  # rows. This job collapses the matrix into one check name auto-merge can
+  # find.
+  gate:
+    name: gate
+    needs: [gate-matrix]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Verify all jobs succeeded
+        run: |
+          if [ "${{ needs.gate-matrix.result }}" != "success" ]; then
+            echo "::error::gate-matrix failed (result=${{ needs.gate-matrix.result }})"
+            exit 1
+          fi
+          echo "✓ all gates passed"
