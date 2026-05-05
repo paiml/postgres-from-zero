@@ -9,7 +9,11 @@ use clap::{Parser, ValueEnum};
 use postgres_reports::{pool, run, Report, RunOptions};
 
 #[derive(Parser, Debug)]
-#[command(name = "postgres-reports", version, about = "Sakila reports via sqlx + Postgres")]
+#[command(
+    name = "postgres-reports",
+    version,
+    about = "Sakila reports via sqlx + Postgres"
+)]
 struct Cli {
     #[arg(long, value_enum, default_value_t = ReportArg::Customers)]
     report: ReportArg,
@@ -20,8 +24,11 @@ struct Cli {
     #[arg(long)]
     out: Option<std::path::PathBuf>,
 
-    #[arg(long, env = "DATABASE_URL",
-          default_value = "postgres://postgres:postgres@localhost:5432/pagila")]
+    #[arg(
+        long,
+        env = "DATABASE_URL",
+        default_value = "postgres://postgres:postgres@localhost:5432/pagila"
+    )]
     database_url: String,
 }
 

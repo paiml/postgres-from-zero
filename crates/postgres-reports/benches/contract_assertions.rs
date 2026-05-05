@@ -11,7 +11,9 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 // the asserts look at: a sorted, fixed-shape Vec with a numeric metric.
 
 fn synthetic_rows(n: usize) -> Vec<(i32, String, i64)> {
-    (0..n).map(|i| (i as i32 + 1, format!("NAME {i}"), (n - i) as i64)).collect()
+    (0..n)
+        .map(|i| (i as i32 + 1, format!("NAME {i}"), (n - i) as i64))
+        .collect()
 }
 
 fn check_invariants(rows: &[(i32, String, i64)]) {
@@ -31,9 +33,15 @@ fn bench_invariants(c: &mut Criterion) {
     let rows_100 = synthetic_rows(100);
     let rows_1000 = synthetic_rows(1000);
 
-    c.bench_function("invariants_10", |b| b.iter(|| check_invariants(black_box(&rows_10))));
-    c.bench_function("invariants_100", |b| b.iter(|| check_invariants(black_box(&rows_100))));
-    c.bench_function("invariants_1000", |b| b.iter(|| check_invariants(black_box(&rows_1000))));
+    c.bench_function("invariants_10", |b| {
+        b.iter(|| check_invariants(black_box(&rows_10)))
+    });
+    c.bench_function("invariants_100", |b| {
+        b.iter(|| check_invariants(black_box(&rows_100)))
+    });
+    c.bench_function("invariants_1000", |b| {
+        b.iter(|| check_invariants(black_box(&rows_1000)))
+    });
 }
 
 criterion_group!(benches, bench_invariants);

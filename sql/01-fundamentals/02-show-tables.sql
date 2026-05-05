@@ -1,8 +1,16 @@
 -- The Postgres equivalents of MySQL's SHOW commands. Module 1.2.
-\dt                   -- list tables (\dt+ adds size, owner)
-\dn                   -- list schemas
-\du                   -- list roles (users + groups)
-\df                   -- list functions
+
+-- list tables (\dt+ adds size, owner)
+\dt
+
+-- list schemas
+\dn
+
+-- list roles (users + groups)
+\du
+
+-- list functions
+\df
 
 -- Information_schema is the SQL-standard alternative.
 SELECT table_name
