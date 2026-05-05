@@ -1,5 +1,20 @@
 # Postgres From Zero — Companion Repo
 
+![Postgres From Zero hero](assets/hero.png)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-1.95-orange.svg?logo=rust)](rust-toolchain.toml)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg?logo=postgresql&logoColor=white)](docker-compose.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](crates/postgres-reports/src/lib.rs)
+[![Tests](https://img.shields.io/badge/tests-45%20passing-brightgreen.svg)](crates/postgres-reports/tests/)
+[![Provable contracts](https://img.shields.io/badge/provable%20contracts-13-7ee787.svg)](contracts/postgres-reports.yaml)
+[![GitHub last commit](https://img.shields.io/github/last-commit/paiml/postgres-from-zero)](https://github.com/paiml/postgres-from-zero/commits/main)
+[![GitHub repo size](https://img.shields.io/github/repo-size/paiml/postgres-from-zero)](https://github.com/paiml/postgres-from-zero)
+
+Sibling repos in the same series:
+[paiml/mysql-from-zero](https://github.com/paiml/mysql-from-zero) ·
+[paiml/duckdb-from-zero](https://github.com/paiml/duckdb-from-zero)
+
 The runnable companion to the Coursera course **Postgres From Zero**, part of
 the *Rust for Data Engineering* specialization.
 

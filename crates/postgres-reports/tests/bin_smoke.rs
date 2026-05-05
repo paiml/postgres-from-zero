@@ -76,7 +76,10 @@ fn binary_errors_on_unreachable_database() {
         .env("DATABASE_URL", "postgres://nobody@127.0.0.1:1/none")
         .output()
         .expect("spawn binary");
-    assert!(!output.status.success(), "binary should fail with unreachable DB");
+    assert!(
+        !output.status.success(),
+        "binary should fail with unreachable DB"
+    );
 }
 
 #[test]

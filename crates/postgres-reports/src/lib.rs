@@ -94,7 +94,10 @@ fn write_to_path(path: &Path, body: &str) -> Result<()> {
 fn assert_well_formed_json(body: &str) {
     let parsed: serde_json::Value =
         serde_json::from_str(body).expect("run-output: rendered JSON must parse");
-    assert!(parsed.is_array(), "run-output: rendered JSON must be an array");
+    assert!(
+        parsed.is_array(),
+        "run-output: rendered JSON must be an array"
+    );
     eprintln!("contract: run-output OK");
 }
 
@@ -247,14 +250,25 @@ pub async fn top_actors(pool: &PgPool, limit: i64) -> Result<Vec<TopActor>> {
 /// the row count matches the requested limit, the leading row's metric is
 /// non-trivial, and the metric is monotonically non-increasing.
 fn assert_topn_invariants<T>(rows: &[T], limit: usize, label: &str, metric: impl Fn(&T) -> i64) {
-    assert_eq!(rows.len(), limit, "{label}-row-count: expected {limit}, got {}", rows.len());
+    assert_eq!(
+        rows.len(),
+        limit,
+        "{label}-row-count: expected {limit}, got {}",
+        rows.len()
+    );
     eprintln!("contract: {label}-row-count OK");
 
-    assert!(metric(&rows[0]) >= 1, "{label}-top-nonzero: leading row metric must be >= 1");
+    assert!(
+        metric(&rows[0]) >= 1,
+        "{label}-top-nonzero: leading row metric must be >= 1"
+    );
     eprintln!("contract: {label}-top-nonzero OK");
 
     for w in rows.windows(2) {
-        assert!(metric(&w[0]) >= metric(&w[1]), "{label}-monotonic: ORDER BY DESC violated");
+        assert!(
+            metric(&w[0]) >= metric(&w[1]),
+            "{label}-monotonic: ORDER BY DESC violated"
+        );
     }
     eprintln!("contract: {label}-monotonic OK");
 }
@@ -262,8 +276,16 @@ fn assert_topn_invariants<T>(rows: &[T], limit: usize, label: &str, metric: impl
 fn assert_contracts_customers(rows: &[TopCustomer], limit: usize) {
     assert_topn_invariants(rows, limit, "customers", |r| r.rental_count);
     for r in rows {
-        assert!(r.customer_id > 0, "customers-row-shape: customer_id must be positive (got {})", r.customer_id);
-        assert!(r.name.contains(' '), "customers-row-shape: name must be 'First Last' (got {:?})", r.name);
+        assert!(
+            r.customer_id > 0,
+            "customers-row-shape: customer_id must be positive (got {})",
+            r.customer_id
+        );
+        assert!(
+            r.name.contains(' '),
+            "customers-row-shape: name must be 'First Last' (got {:?})",
+            r.name
+        );
     }
     eprintln!("contract: customers-row-shape OK");
 }
@@ -271,8 +293,15 @@ fn assert_contracts_customers(rows: &[TopCustomer], limit: usize) {
 fn assert_contracts_films(rows: &[TopFilm], limit: usize) {
     assert_topn_invariants(rows, limit, "films", |r| r.rental_count);
     for r in rows {
-        assert!(r.film_id > 0, "films-row-shape: film_id must be positive (got {})", r.film_id);
-        assert!(!r.title.is_empty(), "films-row-shape: title must be non-empty");
+        assert!(
+            r.film_id > 0,
+            "films-row-shape: film_id must be positive (got {})",
+            r.film_id
+        );
+        assert!(
+            !r.title.is_empty(),
+            "films-row-shape: title must be non-empty"
+        );
     }
     eprintln!("contract: films-row-shape OK");
 }
@@ -280,9 +309,15 @@ fn assert_contracts_films(rows: &[TopFilm], limit: usize) {
 fn assert_contracts_actors(rows: &[TopActor], limit: usize) {
     assert_topn_invariants(rows, limit, "actors", |r| r.film_count);
     for r in rows {
-        assert!(r.actor_id > 0, "actors-row-shape: actor_id must be positive (got {})", r.actor_id);
-        assert!(!r.first_name.is_empty() && !r.last_name.is_empty(),
-                "actors-row-shape: first/last name must be non-empty");
+        assert!(
+            r.actor_id > 0,
+            "actors-row-shape: actor_id must be positive (got {})",
+            r.actor_id
+        );
+        assert!(
+            !r.first_name.is_empty() && !r.last_name.is_empty(),
+            "actors-row-shape: first/last name must be non-empty"
+        );
     }
     eprintln!("contract: actors-row-shape OK");
 }
@@ -292,13 +327,27 @@ mod tests {
     use super::*;
 
     fn customer(id: i32, name: &str, count: i64) -> TopCustomer {
-        TopCustomer { customer_id: id, name: name.into(), rental_count: count, email: None }
+        TopCustomer {
+            customer_id: id,
+            name: name.into(),
+            rental_count: count,
+            email: None,
+        }
     }
     fn film(id: i32, title: &str, count: i64) -> TopFilm {
-        TopFilm { film_id: id, title: title.into(), rental_count: count }
+        TopFilm {
+            film_id: id,
+            title: title.into(),
+            rental_count: count,
+        }
     }
     fn actor(id: i32, first: &str, last: &str, count: i64) -> TopActor {
-        TopActor { actor_id: id, first_name: first.into(), last_name: last.into(), film_count: count }
+        TopActor {
+            actor_id: id,
+            first_name: first.into(),
+            last_name: last.into(),
+            film_count: count,
+        }
     }
 
     #[test]
@@ -340,7 +389,10 @@ mod tests {
 
     #[test]
     fn films_contracts_pass_on_well_formed_rows() {
-        let rows = vec![film(1, "BUCKET BROTHERHOOD", 34), film(2, "ROCKETEER MOTHER", 33)];
+        let rows = vec![
+            film(1, "BUCKET BROTHERHOOD", 34),
+            film(2, "ROCKETEER MOTHER", 33),
+        ];
         assert_contracts_films(&rows, 2);
     }
 
@@ -376,7 +428,10 @@ mod tests {
 
     #[test]
     fn actors_contracts_pass_on_well_formed_rows() {
-        let rows = vec![actor(1, "GINA", "DEGENERES", 42), actor(2, "WALTER", "TORN", 41)];
+        let rows = vec![
+            actor(1, "GINA", "DEGENERES", 42),
+            actor(2, "WALTER", "TORN", 41),
+        ];
         assert_contracts_actors(&rows, 2);
     }
 
@@ -419,7 +474,10 @@ mod tests {
     #[tokio::test]
     async fn pool_returns_error_for_unreachable_url() {
         let result = pool("postgres://nobody@127.0.0.1:1/none").await;
-        assert!(result.is_err(), "unreachable URL must return Err, not panic");
+        assert!(
+            result.is_err(),
+            "unreachable URL must return Err, not panic"
+        );
     }
 
     #[test]
@@ -458,9 +516,18 @@ mod tests {
         std::fs::write(&blocker, "i am a file, not a directory").expect("seed blocker");
         let target = blocker.join("inner.json");
         let result = write_to_path(&target, "[]");
-        assert!(result.is_err(), "create_dir_all must fail under a regular file");
-        let msg = format!("{:?}", result.expect_err("create_dir_all should have failed"));
-        assert!(msg.contains("failed to create directory"), "unexpected error: {msg}");
+        assert!(
+            result.is_err(),
+            "create_dir_all must fail under a regular file"
+        );
+        let msg = format!(
+            "{:?}",
+            result.expect_err("create_dir_all should have failed")
+        );
+        assert!(
+            msg.contains("failed to create directory"),
+            "unexpected error: {msg}"
+        );
         std::fs::remove_file(&blocker).ok();
     }
 
