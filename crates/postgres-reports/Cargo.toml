@@ -1,0 +1,35 @@
+[package]
+name = "postgres-reports"
+version = "0.1.0"
+edition = "2021"
+description = "Three Sakila/Pagila analytics reports against PostgreSQL via sqlx"
+license = "MIT"
+repository = "https://github.com/paiml/postgres-from-zero"
+readme = "README.md"
+keywords = ["postgres", "sqlx", "pagila", "tutorial"]
+categories = ["database", "command-line-utilities"]
+
+[lints]
+workspace = true
+
+[dependencies]
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "macros"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+clap = { version = "4", features = ["derive", "env"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "postgres-reports"
+path = "src/main.rs"
+
+[[bench]]
+name = "contract_assertions"
+harness = false
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }

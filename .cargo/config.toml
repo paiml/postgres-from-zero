@@ -1,0 +1,9 @@
+[build]
+# Match the sibling companion repos for reproducible builds.
+
+[net]
+retry = 3
+git-fetch-with-cli = true
+
+[term]
+verbose = false

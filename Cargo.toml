@@ -1,0 +1,21 @@
+[workspace]
+members = ["crates/postgres-reports"]
+resolver = "2"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+checked_conversions = "warn"
+unwrap_used = "warn"
+expect_used = "allow"
+needless_pass_by_value = "warn"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+
+[profile.dev]
+incremental = true

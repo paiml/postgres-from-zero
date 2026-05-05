@@ -1,0 +1,89 @@
+# Provable runtime contracts for the postgres-reports library.
+#
+# This is the machine-readable companion to the contract table in README.md.
+# Each entry names a contract that the implementation asserts at runtime.
+# Drift between this file and the asserts in src/lib.rs is a defect.
+
+apiVersion: paiml.com/contracts/v1
+kind: ProvableContract
+metadata:
+  crate: postgres-reports
+  version: 0.1.0
+  scope: top-N analytics reports against the Pagila Postgres dataset
+
+contracts:
+
+  - id: customers-row-count
+    statement: "len(rows) == limit for top_customers"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::customers_contracts_fail_on_wrong_length
+
+  - id: customers-top-nonzero
+    statement: "leading row's rental_count >= 1 for top_customers"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::customers_contracts_fail_on_zero_top
+
+  - id: customers-monotonic
+    statement: "rental_count[i] >= rental_count[i+1] for top_customers"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::customers_contracts_fail_on_disordered_rows
+
+  - id: customers-row-shape
+    statement: "customer_id > 0 AND name contains a space (First Last)"
+    enforced_by: src/lib.rs::assert_contracts_customers
+    tests:
+      - src/lib.rs::tests::customers_contracts_fail_on_nonpositive_id
+      - src/lib.rs::tests::customers_contracts_fail_on_unsplit_name
+
+  - id: films-row-count
+    statement: "len(rows) == limit for top_films"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::films_contracts_fail_on_wrong_length
+
+  - id: films-top-nonzero
+    statement: "leading row's rental_count >= 1 for top_films"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::films_contracts_fail_on_zero_top
+
+  - id: films-monotonic
+    statement: "rental_count[i] >= rental_count[i+1] for top_films"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::films_contracts_fail_on_disordered_rows
+
+  - id: films-row-shape
+    statement: "film_id > 0 AND title is non-empty"
+    enforced_by: src/lib.rs::assert_contracts_films
+    tests:
+      - src/lib.rs::tests::films_contracts_fail_on_nonpositive_id
+      - src/lib.rs::tests::films_contracts_fail_on_empty_title
+
+  - id: actors-row-count
+    statement: "len(rows) == limit for top_actors"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::actors_contracts_fail_on_wrong_length
+
+  - id: actors-top-nonzero
+    statement: "leading row's film_count >= 1 for top_actors"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::actors_contracts_fail_on_zero_top
+
+  - id: actors-monotonic
+    statement: "film_count[i] >= film_count[i+1] for top_actors"
+    enforced_by: src/lib.rs::assert_topn_invariants
+    test: src/lib.rs::tests::actors_contracts_fail_on_disordered_rows
+
+  - id: actors-row-shape
+    statement: "actor_id > 0 AND first_name AND last_name are non-empty"
+    enforced_by: src/lib.rs::assert_contracts_actors
+    tests:
+      - src/lib.rs::tests::actors_contracts_fail_on_nonpositive_id
+      - src/lib.rs::tests::actors_contracts_fail_on_empty_first_name
+      - src/lib.rs::tests::actors_contracts_fail_on_empty_last_name
+
+  - id: run-output
+    statement: "rendered JSON parses successfully and is a top-level array"
+    enforced_by: src/lib.rs::assert_well_formed_json
+    tests:
+      - src/lib.rs::tests::assert_well_formed_json_accepts_arrays
+      - src/lib.rs::tests::assert_well_formed_json_rejects_objects
+      - src/lib.rs::tests::assert_well_formed_json_rejects_garbage

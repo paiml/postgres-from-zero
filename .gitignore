@@ -1,0 +1,10 @@
+/target/
+.env
+/data/
+*.dump
+.DS_Store
+
+# Local pmat / pv tooling state
+/.pmat/
+/.pmat-metrics/
+/.pv/

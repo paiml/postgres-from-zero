@@ -1,0 +1,3 @@
+disallowed-methods = [
+    { path = "std::env::set_var", reason = "process-global state breaks parallel tests" },
+]
