@@ -1,3 +1,7 @@
+-- Pagila top-N actors by distinct film count.
+-- Joins actor to the film_actor bridge table to count how many distinct
+-- films each actor appeared in. The Rust binary `postgres-reports
+-- --report actors` runs the same query and enforces runtime contracts.
 SELECT a.actor_id, a.first_name, a.last_name,
        COUNT(DISTINCT fa.film_id) AS film_count
 FROM actor a

@@ -1,4 +1,5 @@
-.PHONY: help up down pagila psql demo capstone verify test coverage fmt lint clean nuke
+.PHONY: help up down pagila psql demo capstone verify test coverage fmt lint clean nuke \
+        demo-1-fundamentals demo-2-joins demo-3-pagila demo-4-rust demo-all
 
 DC := docker compose
 PSQL := $(DC) exec -T postgres psql -U postgres -d pagila
@@ -13,6 +14,14 @@ help:
 	@echo "  make demo      — run the SQL example walkthrough"
 	@echo "  make capstone  — build and run the Rust postgres-reports binary"
 	@echo "  make verify    — assert all headline counts (CI smoke test)"
+	@echo ""
+	@echo "  Standalone demos (one script per concept):"
+	@echo "    make demo-1-fundamentals — sql/01-fundamentals/*.sql"
+	@echo "    make demo-2-joins        — sql/02-joins/*.sql"
+	@echo "    make demo-3-pagila       — sql/pagila-analytics/*.sql"
+	@echo "    make demo-4-rust         — Rust capstone binary, 3 contract-enforced reports"
+	@echo "    make demo-all            — run every demo in sequence"
+	@echo ""
 	@echo "  make test      — cargo test for the Rust crate"
 	@echo "  make coverage  — cargo llvm-cov (100% line gate)"
 	@echo "  make fmt lint  — cargo fmt && cargo clippy"
@@ -47,6 +56,21 @@ capstone: pagila
 
 verify: pagila
 	@bash scripts/verify.sh
+
+demo-1-fundamentals: pagila
+	@bash scripts/demo-1-fundamentals.sh
+
+demo-2-joins: pagila
+	@bash scripts/demo-2-joins.sh
+
+demo-3-pagila: pagila
+	@bash scripts/demo-3-pagila.sh
+
+demo-4-rust: pagila
+	@bash scripts/demo-4-rust.sh
+
+demo-all: pagila
+	@bash scripts/demo-all.sh
 
 test: pagila
 	@DATABASE_URL=postgres://postgres:postgres@localhost:5432/pagila cargo test --release
