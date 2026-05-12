@@ -1,8 +1,10 @@
 /target/
+/out/
 .env
 /data/
 *.dump
 .DS_Store
+.idea/
 
 # Local pmat / pv tooling state
 /.pmat/
