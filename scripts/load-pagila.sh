@@ -17,8 +17,8 @@ echo "[load-pagila] downloading Pagila…"
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
-curl -sL https://raw.githubusercontent.com/devrimgunduz/pagila/master/pagila-schema.sql -o "$TMPDIR/schema.sql"
-curl -sL https://raw.githubusercontent.com/devrimgunduz/pagila/master/pagila-data.sql   -o "$TMPDIR/data.sql"
+curl -sL https://raw.githubusercontent.com/devrimgunduz/pagila/5ba5a57aeb159f75f02aca2432d3c262186d13d3/pagila-schema.sql -o "$TMPDIR/schema.sql"
+curl -sL https://raw.githubusercontent.com/devrimgunduz/pagila/5ba5a57aeb159f75f02aca2432d3c262186d13d3/pagila-data.sql   -o "$TMPDIR/data.sql"
 
 echo "[load-pagila] applying schema…"
 $PSQL < "$TMPDIR/schema.sql" > /dev/null
